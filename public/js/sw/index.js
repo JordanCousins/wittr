@@ -12,3 +12,35 @@ self.addEventListener('fetch', function(event) {
     })
   );
 });
+
+
+//Using a Service Worker to create a//
+//cache and load content from it... //
+self.addEventListener('instal', function(event) {
+ //`event.waitUntil` takes a promise
+ event.waitUntil(
+   //`caches.open` returns a promise
+   caches.open('wittr-static-v1').then(function(cache) {
+     /*Once the cache is opened, `cache.addAll`
+     can be used to cache all URLs.*/
+     return cache.addAll([
+       '/',
+       'js/main.js',
+       'imgs/icon.png',
+       'etc.'
+     ]);
+   })
+ );
+});
+
+//Creating a Cache Response//
+self.addEventListener('fetch', function(event) {
+/*Respond with an entry from the cache, if there is one.
+ If there isn't, fetch from the network.*/
+ event.respondWith(
+   caches.match(event.request).then(function(response) {
+     if(response) return response;
+     return fetch(event.request);
+   })
+ );
+});
