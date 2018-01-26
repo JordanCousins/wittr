@@ -1,8 +1,9 @@
 self.addEventListener('fetch', function(event) {
-	//Hijacking to respond to all requests with a custom html response
-	event.respondWith(
-    new Response('<h1 class="a-winner-is-me">Whale hello there, world!</h1>', {
-      headers: {'Content-Type': 'text/html'}  //allows html response in browser
-    })
-  );
+	/*  Hijacking all requests ending in ".jpg"
+  to respond with a custom .gif response  */
+  if (event.request.url.endsWith('.jpg')) { //when request ends in '.jpg'
+    event.respondWith( //respond with
+      fetch('/imgs/whale-hello.gif') //whale meme ('.gif')
+    );
+  }
 });
