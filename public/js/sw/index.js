@@ -1,3 +1,7 @@
 self.addEventListener('fetch', function(event) {
-  console.log("Whale hello, there!", event.request);
+  event.respondWith(
+    new Response('Whale hello, world!', {
+      headers: {'foo': 'bar'}
+    })
+  );
 });
