@@ -1,3 +1,6 @@
+/*calling the funtion to represent the static cache*/
+var staticCacheName = "wittr-static-v2";
+
 self.addEventListener('fetch', function(event) {
   event.respondWith(
     /*  Respond to all requests for non-existing
@@ -16,11 +19,11 @@ self.addEventListener('fetch', function(event) {
 
 //Using a Service Worker to create a//
 //cache and load content from it... //
-self.addEventListener('instal', function(event) {
+self.addEventListener('install', function(event) {
  //`event.waitUntil` takes a promise
  event.waitUntil(
    //`caches.open` returns a promise
-   caches.open('wittr-static-v1').then(function(cache) {
+   caches.open(staticCacheName).then(function(cache) {
      /*Once the cache is opened, `cache.addAll`
      can be used to cache all URLs.*/
      return cache.addAll([
@@ -33,14 +36,28 @@ self.addEventListener('instal', function(event) {
  );
 });
 
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.filter(function(cacheName) {
+          return cacheName.startsWith('wittr-') &&
+                 cacheName != staticCacheName;
+        }).map(function(cacheName) {
+          return caches.delete(cacheName);
+        })
+      );
+    })
+  );
+});
+
 //Creating a Cache Response//
 self.addEventListener('fetch', function(event) {
 /*Respond with an entry from the cache, if there is one.
  If there isn't, fetch from the network.*/
  event.respondWith(
    caches.match(event.request).then(function(response) {
-     if(response) return response;
-     return fetch(event.request);
+     return response || fetch(event.request);
    })
  );
 });
